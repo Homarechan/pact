@@ -13,6 +13,10 @@ import Data.Text(Text)
 import Data.IntMap.Strict(IntMap)
 import Data.IORef (IORef, atomicModifyIORef')
 
+
+newtype Field = Field Text
+  deriving (Eq, Ord, Show)
+
 newtype Unique = Unique Int deriving (Show, Eq, Ord)
 
 newtype Supply = Supply (IORef Int)

@@ -155,7 +155,7 @@ instance (Substitutable (t n) n) => Substitutable (Map k (t n)) n where
 class FTV p n | p -> n where
   ftv :: p -> FreeTyVars n
 
-instance Ord n => FTV (Map.Map n (Type n)) n where
+instance Ord n => FTV (Map.Map k (Type n)) n where
   ftv = foldMap ftv
 
 instance Ord tyname => FTV (Type tyname) tyname where

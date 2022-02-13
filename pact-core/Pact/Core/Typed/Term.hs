@@ -3,6 +3,14 @@
 module Pact.Core.Typed.Term where
 
 import Control.Lens
+import Data.Map(Map)
+import qualified Data.Map.Strict as M
+import Data.Text(Text)
+import Data.Vector (Vector)
+import qualified Data.Vector as V
+
+
+import Pact.Core.Names
 import Pact.Core.Type
 import Pact.Types.Exp (Literal)
 
@@ -13,6 +21,8 @@ data Term name tyname builtin info
   | App (Term name tyname builtin info) (Term name tyname builtin info) info
   | TyApp (Term name tyname builtin info) (Type tyname) info
   | TyAbs tyname (Term name tyname builtin info) info
+  | ObjectLit (Row tyname) (Map Field (Term name tyname builtin info)) info
+  | ListLit (Type tyname) (Vector (Term name tyname builtin info)) info
   | Error String (Type tyname) info
   | Builtin builtin info
   | Constant Literal info
@@ -25,6 +35,8 @@ termInfo f = \case
   App t1 t2 i -> App t1 t2 <$> f i
   TyApp term ty i -> TyApp term ty <$> f i
   TyAbs ty term i -> TyAbs ty term <$> f i
+  ObjectLit row obj info -> ObjectLit row obj <$> f i
+  ListLit ty v i -> ListLit ty v <$> i
   Error s ty i -> Error s ty <$> f i
   Builtin b i -> Builtin b <$> f i
   Constant l i -> Constant l <$> f i

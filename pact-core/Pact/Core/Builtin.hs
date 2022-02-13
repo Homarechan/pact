@@ -21,4 +21,11 @@ data RawBuiltin
 data ResolvedBuiltin
   = AddInt
   | SubInt
+  | AddDecimal
+  | SubDecimal
+  | EqInt
+  | EqString
+  | EqDecimal
+  | ConcatStr
+  | Dro
   deriving (Eq, Show, Ord, Enum)

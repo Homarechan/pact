@@ -10,6 +10,7 @@ import Control.Lens
 -- import Data.Maybe(fromMaybe)
 import qualified Data.Map.Strict as Map
 import Pact.Types.Exp (Literal(..))
+import Pact.Core.Names
 
 
 data PrimType =
@@ -22,7 +23,7 @@ data PrimType =
   deriving (Eq,Ord,Show)
 
 data Row n
-  = RowTy (Map.Map n (Type n)) (Maybe n)
+  = RowTy (Map.Map Field (Type n)) (Maybe n)
   | RowVar n
   | EmptyRow
   deriving (Eq, Show)
@@ -56,10 +57,13 @@ data Type n
   -- ^ Row objects
   | TyList (Type n)
   -- ^ List aka [a]
-  -- | TyTable (Maybe n) (Row n)
-  -- -- ^ Tables, which may be inlined or optionally named
-  -- -- | TyCap n (Type n) [TyRow n]
-  -- -- ^ Capabilities (do we want the dependent caps as part of the type?)
+  | TyTable n (Row n)
+  -- ^ Named tables.
+  | TyCap n
+  -- ^ Capabilities
+  -- Atm, until we have a proper constraint system,
+  -- caps will simply be enforced @ runtime.
+  -- Later on, however, it makes sense to have the set of nominally defined caps in the constraints of a function.
   | TyInterface (InterfaceType n)
    -- ^ interfaces, which are nominal
   | TyModule (ModuleType n)
@@ -84,8 +88,8 @@ instance Plated (Type n) where
     TyFun l r -> TyFun <$> f l <*> f r
     TyRow rows -> TyRow <$> traverseRowTy f rows
     TyList t -> TyList <$> f t
-    -- TyTable n rows ->
-    --   TyTable n <$> traverseRowTy f rows
+    TyTable n r -> TyTable n <$> traverseRowTy f r
+    TyCap n -> pure (TyCap n)
     TyInterface n ->
       pure $ TyInterface n
     TyModule n -> pure $ TyModule n

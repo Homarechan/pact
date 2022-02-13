@@ -13,13 +13,21 @@
 module Pact.Core.IR.Term where
 
 import Control.Lens
+import Data.Map(Map)
+-- import qualified Data.Map.Strict as M
+import Data.Text(Text)
+import Data.Vector (Vector)
+-- import qualified Data.Vector as V
+
+
+
 import Pact.Types.Hash (Hash)
 import Pact.Types.Exp (Literal)
 import Pact.Core.Type
--- import Pact.Core.Names
+import Pact.Core.Names
 import Pact.Core.Builtin
 import qualified Pact.Types.Names as PNames
-import Data.Text(Text)
+
 
 -- Todo: Not sure if this type is useful at all,
 -- since we're trying to share the `DefConst`
@@ -122,7 +130,10 @@ data Term name tyname builtin info
   -- ^ For some module m, m::f
   | Constant Literal info
   -- ^ Literals
-  deriving (Show, Functor)
+  | ObjectLit (Map Field (Term name tyname builtin info)) info
+  -- ^ Object literals
+  | ListLit (Vector (Term name tyname builtin info)) info
+  deriving (Show, Functor, Eq)
 
 termInfo :: Lens' (Term name tyname builtin info) info
 termInfo f = \case
@@ -136,6 +147,8 @@ termInfo f = \case
   Constant l i -> Constant l <$> f i
   Sequence l r i -> Sequence l r <$> f i
   DynAccess n1 n2 i -> DynAccess n1 n2 <$> f i
+  ObjectLit m i -> ObjectLit m <$> f i
+  ListLit l i  -> ListLit l <$> f i
 
 instance Plated (Term name tyname builtin info) where
   plate f = \case
@@ -148,3 +161,6 @@ instance Plated (Term name tyname builtin info) where
     Constant l i -> pure (Constant l i)
     Sequence l r i -> Sequence <$> f l <*> f r <*> pure i
     DynAccess n1 n2 i -> pure (DynAccess n1 n2 i)
+    ObjectLit m i -> ObjectLit <$> traverse f m <*> pure i
+    ListLit m i -> ListLit <$> traverse f m <*> pure i
+

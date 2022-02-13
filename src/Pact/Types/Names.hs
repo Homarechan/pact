@@ -55,7 +55,6 @@ import Pact.Types.Pretty hiding (dot)
 import Pact.Types.SizeOf
 import Pact.Types.Util
 
-
 newtype NamespaceName = NamespaceName Text
   deriving (Eq, Ord, Show, FromJSON, ToJSON, IsString, AsString, Hashable, Pretty, Generic, NFData, SizeOf)
 
