@@ -118,6 +118,8 @@ parseModuleName = AP.parseOnly (moduleNameParser <* eof)
 newtype DefName = DefName Text
     deriving (Eq,Ord,IsString,ToJSON,FromJSON,AsString,Hashable,Pretty,Show,NFData)
 
+instance SizeOf DefName where
+  sizeOf (DefName n) = sizeOf n
 
 data QualifiedName = QualifiedName
   { _qnQual :: ModuleName
@@ -293,11 +295,15 @@ newtype NativeDefName = NativeDefName Text
 instance Pretty NativeDefName where
   pretty (NativeDefName name) = pretty name
 
-
+instance SizeOf NativeDefName where
+  sizeOf (NativeDefName n) = sizeOf n
 
 newtype TableName = TableName Text
     deriving (Eq,Ord,IsString,AsString,Hashable,Show,NFData,ToJSON,FromJSON)
 instance Pretty TableName where pretty (TableName s) = pretty s
+
+instance SizeOf TableName where
+  sizeOf (TableName t) = sizeOf t
 
 makeLenses ''ModuleName
 makeLenses ''DynamicName
